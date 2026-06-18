@@ -1,0 +1,236 @@
+import React, { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { User, Phone, MapPin, Calendar, Camera, Check, ShieldAlert } from 'lucide-react';
+
+const PatientProfile = () => {
+  const { user, updateProfile } = useContext(AuthContext);
+
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('Male');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [address, setAddress] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setPhone(user.phone || '');
+      setGender(user.gender || 'Male');
+      if (user.dateOfBirth) {
+        setDateOfBirth(user.dateOfBirth.split('T')[0]);
+      }
+      setAddress(user.address || '');
+      if (user.avatar) {
+        setAvatarPreview(`http://localhost:5000${user.avatar}`);
+      }
+    }
+  }, [user]);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
+    setError('');
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('phone', phone);
+    formData.append('gender', gender);
+    formData.append('dateOfBirth', dateOfBirth);
+    formData.append('address', address);
+    
+    if (avatar) {
+      formData.append('avatar', avatar);
+    }
+    
+    if (password) {
+      formData.append('password', password);
+    }
+
+    try {
+      await updateProfile(formData, true);
+      setSuccess(true);
+      setPassword(''); // Reset password field
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to update profile details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="animate-fade-in-up">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="fw-bold">Profile Settings</h2>
+          <p className="text-muted mb-0">Update your account details and profile demographics.</p>
+        </div>
+      </div>
+
+      <div className="card border p-4 shadow-sm" style={{ borderRadius: '20px', background: '#fff' }}>
+        <form onSubmit={handleSubmit} className="row g-3">
+          {success && (
+            <div className="col-12">
+              <div className="alert alert-success d-flex align-items-center gap-2 small p-2 mb-0" role="alert">
+                <Check size={16} />
+                <span>Profile details updated successfully!</span>
+              </div>
+            </div>
+          )}
+          {error && (
+            <div className="col-12">
+              <div className="alert alert-danger d-flex align-items-center gap-2 small p-2 mb-0" role="alert">
+                <ShieldAlert size={16} />
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Avatar Upload */}
+          <div className="col-12 d-flex flex-column align-items-center mb-3">
+            <div className="position-relative">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt={name}
+                  style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #4f46e5' }}
+                />
+              ) : (
+                <div className="bg-light text-primary d-flex align-items-center justify-content-center fw-bold" style={{ width: '120px', height: '120px', borderRadius: '50%', fontSize: '36px' }}>
+                  {name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <label
+                htmlFor="avatar-upload"
+                className="btn btn-primary btn-sm rounded-circle position-absolute d-flex align-items-center justify-content-center text-white"
+                style={{ bottom: '0', right: '0', width: '32px', height: '32px', cursor: 'pointer' }}
+              >
+                <Camera size={16} />
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="d-none"
+                />
+              </label>
+            </div>
+            <span className="small text-muted mt-2">Click icon to change picture</span>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold text-muted">Full Name</label>
+            <div className="input-group border rounded px-2 py-1 bg-white">
+              <User size={18} className="text-muted align-self-center me-2" />
+              <input
+                type="text"
+                className="form-control border-0 p-1"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{ fontSize: '14px', boxShadow: 'none' }}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold text-muted">Phone Number</label>
+            <div className="input-group border rounded px-2 py-1 bg-white">
+              <Phone size={18} className="text-muted align-self-center me-2" />
+              <input
+                type="text"
+                className="form-control border-0 p-1"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                style={{ fontSize: '14px', boxShadow: 'none' }}
+              />
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold text-muted">Gender</label>
+            <select
+              className="form-select py-2"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              style={{ fontSize: '14px' }}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold text-muted">Date of Birth</label>
+            <div className="input-group border rounded px-2 py-1 bg-white">
+              <Calendar size={18} className="text-muted align-self-center me-2" />
+              <input
+                type="date"
+                className="form-control border-0 p-1"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                style={{ fontSize: '14px', boxShadow: 'none' }}
+              />
+            </div>
+          </div>
+
+          <div className="col-12">
+            <label className="form-label small fw-semibold text-muted">Address</label>
+            <div className="input-group border rounded px-2 py-1 bg-white">
+              <MapPin size={18} className="text-muted align-self-center me-2" />
+              <input
+                type="text"
+                className="form-control border-0 p-1"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{ fontSize: '14px', boxShadow: 'none' }}
+              />
+            </div>
+          </div>
+
+          <div className="col-12 border-top pt-3 mt-3">
+            <h6 className="fw-bold mb-3 text-primary">Security Settings</h6>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold text-muted">New Password (leave blank to keep current)</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="col-12 text-end mt-4">
+            <button type="submit" className="btn btn-primary text-white px-5 py-2" disabled={loading}>
+              {loading ? 'Saving Changes...' : 'Save Settings'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default PatientProfile;

@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #4f46e5;       /* Indigo */
+  --primary-hover: #4338ca;
+  --secondary-color: #06b6d4;     /* Cyan */
+  --dark-bg: #0b0f19;
+  --dark-card: rgba(17, 24, 39, 0.7);
+  --dark-border: rgba(255, 255, 255, 0.08);
+  --light-bg: #f8fafc;
+  --light-card: rgba(255, 255, 255, 0.85);
+  --light-border: rgba(0, 0, 0, 0.06);
+  --text-dark: #f8fafc;
+  --text-dark-muted: #94a3b8;
+  --text-light: #0f172a;
+  --text-light-muted: #64748b;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--light-bg);
+  color: var(--text-light);
+  overflow-x: hidden;
+  min-height: 100vh;
+  transition: var(--transition-smooth);
+}
+
+/* Dark Mode Helper class (Optional, but we make the app feel dark and futuristic by default in certain components, or support full dark mode theme) */
+body.dark-mode {
+  background-color: var(--dark-bg);
+  color: var(--text-dark);
+}
+
+/* Premium Glassmorphic Card */
+.glass-card {
+  background: var(--light-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--light-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+  transition: var(--transition-smooth);
+}
+
+body.dark-mode .glass-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.08);
+}
+
+body.dark-mode .glass-card:hover {
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Buttons styling */
+.btn-primary {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.4);
+}
+
+.btn-secondary-custom {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.3);
+}
+
+.btn-secondary-custom:hover {
+  background-color: #0891b2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(6, 182, 212, 0.4);
+}
+
+/* Form Controls */
+.form-control-custom {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  transition: var(--transition-smooth);
+  color: var(--text-light);
+}
+
+body.dark-mode .form-control-custom {
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dark);
+}
+
+.form-control-custom:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Health Timeline custom elements */
+.timeline-container {
+  position: relative;
+  padding-left: 32px;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(79, 70, 229, 0.15);
+}
+
+body.dark-mode .timeline-container::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-item-icon {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+body.dark-mode .timeline-item-icon {
+  background: var(--dark-bg);
+}
+
+/* Sidebar Custom Styling */
+.sidebar-custom {
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid var(--light-border);
+  padding: 24px;
+  z-index: 100;
+  transition: var(--transition-smooth);
+}
+
+body.dark-mode .sidebar-custom {
+  background: rgba(17, 24, 39, 0.95);
+  border-right: 1px solid var(--dark-border);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-light-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  margin-bottom: 8px;
+}
+
+body.dark-mode .sidebar-link {
+  color: var(--text-dark-muted);
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+  background: rgba(79, 70, 229, 0.08);
+  color: var(--primary-color);
+}
+
+body.dark-mode .sidebar-link:hover, body.dark-mode .sidebar-link.active {
+  background: rgba(79, 70, 229, 0.15);
+  color: #818cf8;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 70, 229, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.4);
+}
