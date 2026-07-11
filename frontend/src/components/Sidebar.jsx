@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   UserCheck,
   Grid,
-  Clock
+  Clock,
+  Stethoscope
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -25,6 +26,10 @@ const Sidebar = () => {
       <NavLink to="/patient" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
         <LayoutDashboard size={20} />
         <span>Dashboard</span>
+      </NavLink>
+      <NavLink to="/patient/find-doctors" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+        <Stethoscope size={20} />
+        <span>Find Doctors</span>
       </NavLink>
       <NavLink to="/patient/appointments" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
         <Calendar size={20} />
@@ -70,6 +75,10 @@ const Sidebar = () => {
       <NavLink to="/doctor/prescriptions" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
         <Pill size={20} />
         <span>Prescriptions</span>
+      </NavLink>
+      <NavLink to="/doctor/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+        <Settings size={20} />
+        <span>Profile Settings</span>
       </NavLink>
     </>
   );

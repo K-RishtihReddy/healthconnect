@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Activity, LogOut, User as UserIcon } from 'lucide-react';
+import { ThemeContext } from '../context/ThemeContext';
+import { Activity, LogOut, Sun, Moon } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -52,6 +54,35 @@ const Navbar = () => {
           </ul>
           
           <div className="d-flex align-items-center gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="btn p-2 rounded-circle border-0 d-flex align-items-center justify-content-center"
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              style={{
+                width: '40px',
+                height: '40px',
+                background: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+                color: isDarkMode ? '#f8fafc' : '#0f172a',
+                transition: 'var(--transition-smooth)',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)';
+                e.currentTarget.style.transform = 'scale(1.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              {isDarkMode ? (
+                <Sun size={20} className="text-warning animate-pulse" />
+              ) : (
+                <Moon size={20} className="text-primary" />
+              )}
+            </button>
+
             {user ? (
               <div className="dropdown">
                 <button

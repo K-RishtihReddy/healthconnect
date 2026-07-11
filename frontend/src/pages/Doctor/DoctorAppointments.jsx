@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../utils/api';
-import { Calendar, Clock, Check, X, ShieldAlert, Pill, Plus, Trash2, BookOpen, User } from 'lucide-react';
+import { Calendar, Clock, Check, X, ShieldAlert, Pill, Plus, Trash2, BookOpen, User, Video } from 'lucide-react';
 
 const DoctorAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -238,6 +239,14 @@ const DoctorAppointments = () => {
 
                   {app.status === 'Confirmed' && (
                     <div className="d-flex gap-2 w-100 justify-content-md-end mt-2">
+                      {app.type === 'Online' && (
+                        <Link
+                          to={`/doctor/consultation/${app._id}`}
+                          className="btn btn-sm btn-success text-white d-flex align-items-center gap-1"
+                        >
+                          <Video size={14} /> Join Call Room
+                        </Link>
+                      )}
                       <button
                         className="btn btn-sm btn-primary text-white d-flex align-items-center gap-1"
                         onClick={() => handleStartConsult(app)}

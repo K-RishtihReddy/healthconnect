@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { Activity, Mail, Lock, ShieldAlert } from 'lucide-react';
+import api from '../../utils/api';
 
 const Login = () => {
   const { login, user } = useContext(AuthContext);
@@ -12,6 +13,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // New states for specialization dropdown
+  const [categories, setCategories] = useState([]);
+  const [specialization, setSpecialization] = useState('');
 
   // If already logged in, redirect
   useEffect(() => {
@@ -20,6 +24,20 @@ const Login = () => {
       navigate(from, { replace: true });
     }
   }, [user]);
+
+  // Fetch categories for specialization dropdown (used by doctors)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await api.get('/admin/categories');
+        setCategories(data);
+        if (data.length > 0) setSpecialization(data[0].name);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const getDashboardLink = (role) => {
     if (role === 'admin') return '/admin';
@@ -96,6 +114,21 @@ const Login = () => {
                 required
               />
             </div>
+          </div>
+
+          {/* Specialization dropdown (optional for doctors) */}
+          <div className="mb-3">
+            <label className="form-label small fw-semibold text-muted">Specialization</label>
+            <select
+              className="form-select"
+              value={specialization}
+              onChange={(e) => setSpecialization(e.target.value)}
+            >
+              <option value="" disabled>Select specialization</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
           </div>
 
           <button type="submit" className="btn btn-primary py-2 text-white w-100 mt-2" disabled={loading}>

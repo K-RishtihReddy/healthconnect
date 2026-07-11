@@ -124,6 +124,8 @@ const getSystemAnalytics = async (req, res) => {
         }
       }
     ]);
+    // Transform to objects with 'specialization' key for frontend consistency
+    const specializationBreakdown = specCounts.map(item => ({ specialization: item._id, count: item.count }));
 
     // Recent user registrations (last 5)
     const recentUsers = await User.find({})
@@ -141,7 +143,7 @@ const getSystemAnalytics = async (req, res) => {
         totalAppointments
       },
       appointmentsByStatus,
-      specializationBreakdown: specCounts,
+      specializationBreakdown,
       recentUsers
     });
   } catch (error) {
@@ -178,14 +180,35 @@ const addCategory = async (req, res) => {
 // @route   GET /api/admin/categories
 // @access  Public
 const getCategories = async (req, res) => {
-  try {
-    const categories = await Category.find({}).sort({ name: 1 });
-    res.json(categories);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+    try {
+      const categories = await Category.find({}).sort({ name: 1 });
+      res.json(categories);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+// @desc    Update medical category (specialization)
+// @route   PUT /api/admin/categories/:id
+// @access  Private (Admin only)
+const updateCategory = async (req, res) => {
+    const { name, description, icon } = req.body;
+    try {
+      const category = await Category.findById(req.params.id);
+      if (!category) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+      if (name) category.name = name;
+      if (description) category.description = description;
+      if (icon) category.icon = icon;
+      const updated = await category.save();
+      res.json(updated);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  };
 
 // @desc    Delete medical category
 // @route   DELETE /api/admin/categories/:id
@@ -214,5 +237,6 @@ module.exports = {
   getSystemAnalytics,
   addCategory,
   getCategories,
+  updateCategory,
   deleteCategory
 };

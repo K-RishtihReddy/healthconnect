@@ -1,14 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import api from '../../utils/api';
+
 import { Activity, User as UserIcon, Stethoscope, ShieldAlert } from 'lucide-react';
 
 const Register = () => {
   const { register, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [categories, setCategories] = useState([]);
+
   const [role, setRole] = useState('patient'); // 'patient' or 'doctor'
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,21 +29,17 @@ const Register = () => {
   const [fees, setFees] = useState('');
   const [bio, setBio] = useState('');
 
-  // Fetch categories for specialization selection
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await api.get('/admin/categories');
-        setCategories(data);
-        if (data.length > 0) {
-          setSpecialization(data[0].name);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchCategories();
-  }, []);
+  // Predefined list of doctor specializations
+  const specializationOptions = [
+    'Cardiologists',
+    'Dermatologists',
+    'Endocrinologist',
+    'Gastroenterologists',
+    'Neurologist',
+    'Oncologist',
+    'Psychiatrist',
+    'Obstetricians/Gynecologists',
+  ];
 
   // Redirect if already logged in
   useEffect(() => {
@@ -219,8 +215,9 @@ const Register = () => {
                   onChange={(e) => setSpecialization(e.target.value)}
                   required
                 >
-                  {categories.map((cat) => (
-                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                  <option value="" disabled>Select specialization</option>
+                  {specializationOptions.map((spec) => (
+                    <option key={spec} value={spec}>{spec}</option>
                   ))}
                 </select>
               </div>

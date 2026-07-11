@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { User, Phone, MapPin, Calendar, Camera, Check, ShieldAlert } from 'lucide-react';
+import api from '../../utils/api';
+import { User, Phone, MapPin, Calendar, Camera, Check, ShieldAlert, BookOpen, DollarSign, Award, Briefcase } from 'lucide-react';
 
-const PatientProfile = () => {
+const ProfileSettings = () => {
   const { user, updateProfile } = useContext(AuthContext);
 
+  // Common fields
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState('Male');
@@ -15,9 +17,32 @@ const PatientProfile = () => {
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
 
+  // Doctor-specific fields
+  const [specialization, setSpecialization] = useState('');
+  const [experience, setExperience] = useState('');
+  const [qualification, setQualification] = useState('');
+  const [fees, setFees] = useState('');
+  const [bio, setBio] = useState('');
+  const [categories, setCategories] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Fetch categories (specializations) for doctors
+  useEffect(() => {
+    if (user && user.role === 'doctor') {
+      const fetchCategories = async () => {
+        try {
+          const { data } = await api.get('/admin/categories');
+          setCategories(data);
+        } catch (err) {
+          console.error('Error fetching categories:', err);
+        }
+      };
+      fetchCategories();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -30,6 +55,13 @@ const PatientProfile = () => {
       setAddress(user.address || '');
       if (user.avatar) {
         setAvatarPreview(`http://localhost:5000${user.avatar}`);
+      }
+      if (user.role === 'doctor' && user.doctorProfile) {
+        setSpecialization(user.doctorProfile.specialization || '');
+        setExperience(user.doctorProfile.experience || '');
+        setQualification(user.doctorProfile.qualification || '');
+        setFees(user.doctorProfile.fees || '');
+        setBio(user.doctorProfile.bio || '');
       }
     }
   }, [user]);
@@ -54,13 +86,21 @@ const PatientProfile = () => {
     formData.append('gender', gender);
     formData.append('dateOfBirth', dateOfBirth);
     formData.append('address', address);
-    
+
     if (avatar) {
       formData.append('avatar', avatar);
     }
-    
+
     if (password) {
       formData.append('password', password);
+    }
+
+    if (user.role === 'doctor') {
+      formData.append('specialization', specialization);
+      formData.append('experience', experience);
+      formData.append('qualification', qualification);
+      formData.append('fees', fees);
+      formData.append('bio', bio);
     }
 
     try {
@@ -136,6 +176,11 @@ const PatientProfile = () => {
             <span className="small text-muted mt-2">Click icon to change picture</span>
           </div>
 
+          {/* Account Settings Section */}
+          <div className="col-12">
+            <h6 className="fw-bold mb-3 text-primary">Account Details</h6>
+          </div>
+
           <div className="col-md-6">
             <label className="form-label small fw-semibold text-muted">Full Name</label>
             <div className="input-group border rounded px-2 py-1 bg-white">
@@ -207,6 +252,94 @@ const PatientProfile = () => {
             </div>
           </div>
 
+          {/* Doctor-Specific Fields Section */}
+          {user && user.role === 'doctor' && (
+            <>
+              <div className="col-12 border-top pt-3 mt-3">
+                <h6 className="fw-bold mb-3 text-primary">Clinical Information</h6>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold text-muted">Specialization</label>
+                <div className="input-group border rounded px-2 py-1 bg-white">
+                  <Award size={18} className="text-muted align-self-center me-2" />
+                  <select
+                    className="form-select border-0 p-1"
+                    value={specialization}
+                    onChange={(e) => setSpecialization(e.target.value)}
+                    style={{ fontSize: '14px', boxShadow: 'none' }}
+                    required
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat._id} value={cat.name}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold text-muted">Qualification</label>
+                <div className="input-group border rounded px-2 py-1 bg-white">
+                  <BookOpen size={18} className="text-muted align-self-center me-2" />
+                  <input
+                    type="text"
+                    className="form-control border-0 p-1"
+                    placeholder="e.g. MBBS, MD"
+                    value={qualification}
+                    onChange={(e) => setQualification(e.target.value)}
+                    style={{ fontSize: '14px', boxShadow: 'none' }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold text-muted">Experience (Years)</label>
+                <div className="input-group border rounded px-2 py-1 bg-white">
+                  <Briefcase size={18} className="text-muted align-self-center me-2" />
+                  <input
+                    type="number"
+                    className="form-control border-0 p-1"
+                    placeholder="e.g. 5"
+                    value={experience}
+                    onChange={(e) => setExperience(e.target.value)}
+                    style={{ fontSize: '14px', boxShadow: 'none' }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold text-muted">Consultation Fees ($)</label>
+                <div className="input-group border rounded px-2 py-1 bg-white">
+                  <DollarSign size={18} className="text-muted align-self-center me-2" />
+                  <input
+                    type="number"
+                    className="form-control border-0 p-1"
+                    placeholder="e.g. 100"
+                    value={fees}
+                    onChange={(e) => setFees(e.target.value)}
+                    style={{ fontSize: '14px', boxShadow: 'none' }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="col-12">
+                <label className="form-label small fw-semibold text-muted">Professional Biography</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  placeholder="Tell patients about your background and clinical focus..."
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  style={{ fontSize: '14px', borderRadius: '8px' }}
+                />
+              </div>
+            </>
+          )}
+
+          {/* Security Settings Section */}
           <div className="col-12 border-top pt-3 mt-3">
             <h6 className="fw-bold mb-3 text-primary">Security Settings</h6>
           </div>
@@ -223,7 +356,7 @@ const PatientProfile = () => {
           </div>
 
           <div className="col-12 text-end mt-4">
-            <button type="submit" className="btn btn-primary text-white px-5 py-2" disabled={loading}>
+            <button type="submit" className="btn btn-primary text-white px-5 py-2" disabled={loading} style={{ borderRadius: '8px' }}>
               {loading ? 'Saving Changes...' : 'Save Settings'}
             </button>
           </div>
@@ -233,4 +366,4 @@ const PatientProfile = () => {
   );
 };
 
-export default PatientProfile;
+export default ProfileSettings;

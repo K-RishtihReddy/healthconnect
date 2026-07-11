@@ -19,6 +19,30 @@
   --radius-lg: 24px;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Theme variables (Defaults for Light Theme) */
+  --bg-color: var(--light-bg);
+  --card-bg: var(--light-card);
+  --border-color: var(--light-border);
+  --text-color: var(--text-light);
+  --text-muted: var(--text-light-muted);
+  --dashboard-bg: #f1f5f9;
+  --navbar-bg: #ffffff;
+  --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+body.dark-mode {
+  --bg-color: var(--dark-bg);
+  --card-bg: var(--dark-card);
+  --border-color: var(--dark-border);
+  --text-color: var(--text-dark);
+  --text-muted: var(--text-dark-muted);
+  --dashboard-bg: #0f172a;
+  --navbar-bg: #111827;
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  
+  background-color: var(--dark-bg);
+  color: var(--text-dark);
 }
 
 /* Base Styles */
@@ -30,17 +54,11 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--light-bg);
-  color: var(--text-light);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   overflow-x: hidden;
   min-height: 100vh;
   transition: var(--transition-smooth);
-}
-
-/* Dark Mode Helper class (Optional, but we make the app feel dark and futuristic by default in certain components, or support full dark mode theme) */
-body.dark-mode {
-  background-color: var(--dark-bg);
-  color: var(--text-dark);
 }
 
 /* Premium Glassmorphic Card */
@@ -249,4 +267,198 @@ body.dark-mode .sidebar-link:hover, body.dark-mode .sidebar-link.active {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(79, 70, 229, 0.4);
+}
+
+/* --- Comprehensive Dark Mode Overrides --- */
+
+/* Overrides for Bootstrap standard layout/utility classes */
+body.dark-mode .bg-white {
+  background-color: var(--navbar-bg) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .bg-light {
+  background-color: var(--dashboard-bg) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .text-dark {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Borders */
+body.dark-mode .border,
+body.dark-mode .border-bottom,
+body.dark-mode .border-top,
+body.dark-mode .border-end,
+body.dark-mode .border-start {
+  border-color: var(--border-color) !important;
+}
+
+/* Cards & Modules */
+body.dark-mode .card {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+/* Form Controls & Inputs */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: rgba(17, 24, 39, 0.6) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  background-color: rgba(17, 24, 39, 0.8) !important;
+}
+
+body.dark-mode .form-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7;
+}
+
+/* Navbar Adaptations */
+body.dark-mode .navbar {
+  background-color: var(--navbar-bg) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.dark-mode .navbar-brand {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .navbar .nav-link {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode .navbar .nav-link:hover,
+body.dark-mode .navbar .nav-link.active {
+  color: var(--primary-color) !important;
+}
+
+/* Dropdown Menu overrides */
+body.dark-mode .dropdown-menu {
+  background-color: var(--navbar-bg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .dropdown-item {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .dropdown-divider {
+  border-color: var(--border-color) !important;
+}
+
+/* Buttons */
+body.dark-mode .btn-light {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .btn-light:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .btn-outline-primary {
+  color: #818cf8 !important;
+  border-color: #818cf8 !important;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background-color: #818cf8 !important;
+  color: #ffffff !important;
+}
+
+/* List group elements if any */
+body.dark-mode .list-group-item {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Table overrides for dashboards */
+body.dark-mode .table {
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode .table th,
+body.dark-mode .table td {
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Alert styles */
+body.dark-mode .alert-info {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+  border-color: rgba(6, 182, 212, 0.25) !important;
+  color: #22d3ee !important;
+}
+
+body.dark-mode .alert-danger {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  color: #f87171 !important;
+}
+
+body.dark-mode .alert-success {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+}
+
+body.dark-mode .alert-warning {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  color: #fbbf24 !important;
+}
+
+/* Badges & other classes */
+body.dark-mode .bg-light-subtle {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .text-dark-subtle {
+  color: var(--text-muted) !important;
+}
+
+/* Modal styles if any */
+body.dark-mode .modal-content {
+  background-color: var(--navbar-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode .modal-header .btn-close {
+  filter: invert(1) !important;
 }

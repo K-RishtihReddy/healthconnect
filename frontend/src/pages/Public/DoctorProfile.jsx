@@ -22,12 +22,23 @@ const DoctorProfile = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  // Calendar states
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [monthAvailability, setMonthAvailability] = useState({});
+
+  // Helper to format Date to YYYY-MM-DD local string
+  const getLocalDateString = (dateObj) => {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Set tomorrow as default booking date
   useEffect(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const dateString = tomorrow.toISOString().split('T')[0];
-    setSelectedDate(dateString);
+    setSelectedDate(getLocalDateString(tomorrow));
   }, []);
 
   // Fetch Doctor Profile
@@ -47,20 +58,161 @@ const DoctorProfile = () => {
     fetchDoctor();
   }, [id]);
 
-  // Fetch available slots when date changes
+  // Fetch month availability when currentMonth or doctor changes
   useEffect(() => {
-    const fetchAvailability = async () => {
-      if (!selectedDate || !doctor) return;
+    const fetchMonthAvailability = async () => {
+      if (!doctor) return;
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+
+      // Start of grid (Sunday of the first row)
+      const firstDay = new Date(year, month, 1);
+      const firstDayOfWeek = firstDay.getDay();
+      
+      const gridStart = new Date(firstDay);
+      gridStart.setDate(firstDay.getDate() - firstDayOfWeek);
+
+      // End of grid (42 days total)
+      const gridEnd = new Date(gridStart);
+      gridEnd.setDate(gridStart.getDate() + 41);
+
+      const startStr = getLocalDateString(gridStart);
+      const endStr = getLocalDateString(gridEnd);
+
       try {
-        const { data } = await api.get(`/doctors/${id}/availability?date=${selectedDate}`);
-        setAvailableSlots(data.slots || []);
-        setSelectedSlot(''); // Reset selection
+        const { data } = await api.get(`/doctors/${id}/availability?startDate=${startStr}&endDate=${endStr}`);
+        if (data.range) {
+          setMonthAvailability(data.dates);
+        }
       } catch (err) {
-        console.error('Error fetching availability:', err);
+        console.error('Error fetching month availability:', err);
       }
     };
-    fetchAvailability();
-  }, [selectedDate, doctor, id]);
+    fetchMonthAvailability();
+  }, [currentMonth, doctor, id]);
+
+  // Sync available slots when selectedDate or monthAvailability changes
+  useEffect(() => {
+    if (selectedDate && monthAvailability[selectedDate]) {
+      setAvailableSlots(monthAvailability[selectedDate].slots || []);
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [selectedDate, monthAvailability]);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const handlePrevMonth = () => {
+    const today = new Date();
+    if (currentMonth.getFullYear() > today.getFullYear() || 
+       (currentMonth.getFullYear() === today.getFullYear() && currentMonth.getMonth() > today.getMonth())) {
+      setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    }
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const renderCalendar = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const firstDayOfWeek = firstDay.getDay();
+    
+    const gridStart = new Date(firstDay);
+    gridStart.setDate(firstDay.getDate() - firstDayOfWeek);
+
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 42; i++) {
+      const dayDate = new Date(gridStart);
+      dayDate.setDate(gridStart.getDate() + i);
+      
+      const dateStr = getLocalDateString(dayDate);
+      const isCurrentMonth = dayDate.getMonth() === month;
+      const isPast = dayDate < today;
+      const dayInfo = monthAvailability[dateStr];
+      const hasSlots = dayInfo && dayInfo.totalSlotsCount > 0;
+      const isAvailable = dayInfo && dayInfo.availableSlotsCount > 0;
+      const isSelected = selectedDate === dateStr;
+      
+      let style = {
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '12px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        border: 'none',
+        margin: 'auto'
+      };
+
+      if (!isCurrentMonth) {
+        style.color = '#cbd5e1';
+        style.background = 'transparent';
+        style.cursor = 'default';
+      } else if (isPast) {
+        style.color = '#cbd5e1';
+        style.background = '#f8fafc';
+        style.cursor = 'not-allowed';
+      } else if (isSelected) {
+        style.background = '#4f46e5';
+        style.color = '#ffffff';
+        style.boxShadow = '0 4px 10px rgba(79, 70, 229, 0.3)';
+        style.transform = 'scale(1.08)';
+      } else if (!hasSlots) {
+        style.color = '#b91c1c';
+        style.background = '#fef2f2';
+        style.border = '1px solid #fecaca';
+        style.cursor = 'not-allowed';
+      } else if (isAvailable) {
+        style.background = '#ecfdf5';
+        style.color = '#047857';
+        style.border = '1px solid #a7f3d0';
+      } else {
+        style.background = '#fef2f2';
+        style.color = '#b91c1c';
+        style.border = '1px solid #fecaca';
+      }
+
+      const handleClick = () => {
+        if (!isCurrentMonth || isPast || !hasSlots) return;
+        setSelectedDate(dateStr);
+        setSelectedSlot('');
+      };
+
+      days.push(
+        <div key={i} className="col text-center p-1" style={{ width: '14.28%' }}>
+          <button
+            type="button"
+            style={style}
+            onClick={handleClick}
+            disabled={!isCurrentMonth || isPast || !hasSlots}
+            title={
+              dayInfo 
+                ? `${dayInfo.bookedSlotsCount}/${dayInfo.totalSlotsCount} filled, ${dayInfo.availableSlotsCount} remaining`
+                : ''
+            }
+          >
+            {dayDate.getDate()}
+          </button>
+        </div>
+      );
+    }
+    return days;
+  };
 
   const handleBooking = async (e) => {
     e.preventDefault();
@@ -244,19 +396,88 @@ const DoctorProfile = () => {
                 </div>
 
                 <div>
-                  <label className="form-label small fw-semibold text-muted">Select Date</label>
-                  <div className="input-group border rounded px-2 py-1">
-                    <Calendar size={18} className="text-muted align-self-center me-2" />
-                    <input
-                      type="date"
-                      className="form-control border-0 p-1"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      style={{ fontSize: '14px', boxShadow: 'none' }}
-                      required
-                    />
+                  <label className="form-label small fw-semibold text-muted mb-2">Select Date</label>
+                  
+                  {/* Custom Color-Coded React Calendar */}
+                  <div className="border rounded p-3 mb-3 bg-light" style={{ borderRadius: '16px' }}>
+                    {/* Calendar Header */}
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h6 className="mb-0 fw-bold text-dark">
+                        {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                      </h6>
+                      <div className="d-flex gap-1">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary p-0 d-flex align-items-center justify-content-center"
+                          style={{ width: '28px', height: '28px', borderRadius: '50%' }}
+                          onClick={handlePrevMonth}
+                          disabled={
+                            currentMonth.getFullYear() === new Date().getFullYear() &&
+                            currentMonth.getMonth() === new Date().getMonth()
+                          }
+                        >
+                          &lt;
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary p-0 d-flex align-items-center justify-content-center"
+                          style={{ width: '28px', height: '28px', borderRadius: '50%' }}
+                          onClick={handleNextMonth}
+                        >
+                          &gt;
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Weekday Labels */}
+                    <div className="row g-0 mb-2 border-bottom pb-2">
+                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+                        <div key={d} className="col text-center small fw-semibold text-muted" style={{ width: '14.28%', fontSize: '11px' }}>
+                          {d}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Days Grid */}
+                    <div className="row g-0">
+                      {renderCalendar()}
+                    </div>
+
+                    {/* Calendar Legend */}
+                    <div className="d-flex gap-3 justify-content-center mt-3 pt-2 border-top" style={{ fontSize: '10px' }}>
+                      <div className="d-flex align-items-center gap-1">
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', display: 'inline-block' }}></span>
+                        <span className="text-muted">Available</span>
+                      </div>
+                      <div className="d-flex align-items-center gap-1">
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fef2f2', border: '1px solid #fecaca', display: 'inline-block' }}></span>
+                        <span className="text-muted">Booked Out</span>
+                      </div>
+                      <div className="d-flex align-items-center gap-1">
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f1f5f9', display: 'inline-block' }}></span>
+                        <span className="text-muted">Not Working</span>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Selected Date Summary Indicator */}
+                  {selectedDate && monthAvailability[selectedDate] && (
+                    <>
+                      {monthAvailability[selectedDate].totalSlotsCount > 0 ? (
+                        <div className="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2 border-0" style={{ borderRadius: '12px', fontSize: '13px', backgroundColor: 'rgba(13, 110, 253, 0.08)', color: '#0d6efd' }}>
+                          <Clock size={16} />
+                          <span>
+                            <strong>{monthAvailability[selectedDate].bookedSlotsCount}/{monthAvailability[selectedDate].totalSlotsCount}</strong> are filled and remaining slots are <strong>{monthAvailability[selectedDate].availableSlotsCount}</strong>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="alert alert-warning py-2 px-3 mb-3 d-flex align-items-center gap-2 border-0" style={{ borderRadius: '12px', fontSize: '13px', backgroundColor: 'rgba(255, 193, 7, 0.08)', color: '#ffc107' }}>
+                          <ShieldAlert size={16} />
+                          <span>Doctor is not available on this date.</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 <div>

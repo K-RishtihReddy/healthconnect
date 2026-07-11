@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { Calendar, Clock, Star, AlertTriangle, ShieldCheck, HelpCircle } from 'lucide-react';
 
@@ -139,6 +140,17 @@ const MyAppointments = () => {
                 <div className="col-md-3 text-md-end d-flex flex-column align-items-md-end gap-2">
                   {getStatusBadge(app.status)}
                   
+                  {/* Join Consultation Button (Online & Confirmed) */}
+                  {app.type === 'Online' && app.status === 'Confirmed' && (
+                    <Link
+                      to={`/patient/consultation/${app._id}`}
+                      className="btn btn-sm btn-success text-white d-flex align-items-center gap-1 mt-1 justify-content-center"
+                      style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '8px' }}
+                    >
+                      Join Consultation
+                    </Link>
+                  )}
+
                   {/* Cancel Button */}
                   {(app.status === 'Pending' || app.status === 'Confirmed') && (
                     <button

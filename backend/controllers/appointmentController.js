@@ -22,13 +22,12 @@ const bookAppointment = async (req, res) => {
       return res.status(400).json({ message: 'Doctor is not verified yet by admin' });
     }
 
-    // Parse date and set to midnight/day-only for checking matching date
-    const bookingDate = new Date(date);
-    bookingDate.setHours(0, 0, 0, 0);
+    // Parse date as timezone-agnostic UTC midnight
+    const datePart = typeof date === 'string' ? date.split('T')[0] : new Date(date).toISOString().split('T')[0];
+    const bookingDate = new Date(`${datePart}T00:00:00.000Z`);
 
-    const startOfDay = new Date(bookingDate);
-    const endOfDay = new Date(bookingDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = new Date(`${datePart}T00:00:00.000Z`);
+    const endOfDay = new Date(`${datePart}T23:59:59.999Z`);
 
     // Check if slot is already booked for this doctor
     const existingAppointment = await Appointment.findOne({

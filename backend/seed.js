@@ -16,7 +16,10 @@ const categories = [
   { name: 'Dermatology', description: 'Skin, hair, and nail treatments', icon: 'Sparkles' },
   { name: 'Neurology', description: 'Brain, nerves, and spinal cord care', icon: 'Brain' },
   { name: 'Orthopedics', description: 'Bone, joint, and muscle care', icon: 'Activity' },
-  { name: 'General Medicine', description: 'General checkups and diagnostic healthcare', icon: 'Stethoscope' }
+  { name: 'General Medicine', description: 'General checkups and diagnostic healthcare', icon: 'Stethoscope' },
+  { name: 'Gastroenterology', description: 'Digestive system health', icon: 'Utensils' },
+  { name: 'Endocrinology', description: 'Hormone and gland health', icon: 'Droplet' },
+  { name: 'Oncology', description: 'Cancer diagnosis and treatment', icon: 'Radiation' }
 ];
 
 const seedDB = async () => {

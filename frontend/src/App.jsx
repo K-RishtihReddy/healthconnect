@@ -1,5 +1,4 @@
-import React, { useContext } from 'react';
-import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -19,7 +18,9 @@ import PatientAppointments from './pages/Patient/MyAppointments';
 import PatientRecords from './pages/Patient/MedicalRecords';
 import PatientPrescriptions from './pages/Patient/Prescriptions';
 import PatientFollowUps from './pages/Patient/FollowUps';
-import PatientProfile from './pages/Patient/PatientProfile';
+import FindDoctors from './pages/Patient/FindDoctors';
+import ProfileSettings from './pages/Shared/ProfileSettings';
+import ConsultationRoom from './pages/Shared/ConsultationRoom';
 
 // Import Doctor Pages
 import DoctorDashboard from './pages/Doctor/DoctorDashboard';
@@ -94,12 +95,14 @@ function App() {
       >
         <Route index element={<PatientDashboard />} />
         <Route path="appointments" element={<PatientAppointments />} />
+        <Route path="find-doctors" element={<FindDoctors />} />
         <Route path="records" element={<PatientRecords />} />
         <Route path="prescriptions" element={<PatientPrescriptions />} />
         <Route path="followups" element={<PatientFollowUps />} />
-        <Route path="settings" element={<PatientProfile />} />
+        <Route path="settings" element={<ProfileSettings />} />
+        <Route path="consultation/:id" element={<ConsultationRoom />} />
       </Route>
-
+ 
       {/* Doctor Dashboard Routes */}
       <Route
         path="/doctor"
@@ -114,6 +117,8 @@ function App() {
         <Route path="patients" element={<DoctorPatients />} />
         <Route path="availability" element={<DoctorAvailability />} />
         <Route path="prescriptions" element={<PatientPrescriptions />} /> {/* Shared read component */}
+        <Route path="settings" element={<ProfileSettings />} />
+        <Route path="consultation/:id" element={<ConsultationRoom />} />
       </Route>
 
       {/* Admin Dashboard Routes */}
